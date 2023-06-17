@@ -13,29 +13,53 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Counter',
       theme: ThemeData(primarySwatch: Colors.blue),
-      home: MyHomePage(title: 'Counter with Cubit/Stream'),
+      home: const MyHomePage(title: 'Counter with Cubit/Stream'),
     );
   }
 }
 
 class CounterCubit extends Cubit<int> {
-  CounterCubit(int initialCount) : super(initialCount);
+  // by virtue of having this <int> notation, and
+  // the super param of the same type (post-colon initializer list):
+  // we magically have the *_state* variable
+  CounterCubit(int initialCount) : super(initialCount) {
+    emitInitialState(); // TODO: make this work first
+  }
+  void emitInitialState() => emit(state); // TODO: make this work first
 
-  void increment() => emit(state + 1);
+  // CounterCubit(int initialCount) : super(0); // super overrides our input
+  // CounterCubit() : super(0); // constructor takes no params; hardcoding initial state
+
+  void increment() => emit(state + 1); // state is just a getter for _state
+
 }
 
-class MyHomePage extends StatelessWidget {
+/// We really want to use a StatefulWidget for performance reasons
+/// We can use a Stateless and it'll work, but it's not ideal.
+/// Read the docs on Stateless for a better idea.
+class MyHomePage extends StatefulWidget {
   final String title;
 
-  MyHomePage({super.key, required this.title});
+  const MyHomePage({super.key, required this.title});
 
+  @override
+  State<MyHomePage> createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State<MyHomePage> {
   final CounterCubit _counter = CounterCubit(0);
+
+  @override
+  void initState() {
+    _counter.emitInitialState(); // TODO: fix this to work per docs
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(title),
+        title: Text(widget.title),
       ),
       body: Center(
         child: Column(
@@ -46,7 +70,7 @@ class MyHomePage extends StatelessWidget {
             ),
             StreamBuilder<int>(
               stream: _counter.stream,
-              initialData: _counter.state,
+              // initialData: _counter.state,
               builder: (context, snapshot) {
                 return Text(
                   '${snapshot.data}',
