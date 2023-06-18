@@ -16,19 +16,23 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(primarySwatch: Colors.blue),
       home: BlocProvider(
           create: (_) => CounterBloc(0),
-          child: const MyHomePage(title: 'Counter with Bloc/single-event')),
+          child: const MyHomePage(title: 'Counter with Bloc/multi-event')),
     );
   }
 }
 
-// class CounterEvent {} // kinda abstract; intended to be subclassed
-class CounterIncrementPressed {} // extends CounterEvent {} // our method moves up to its own class?
-// you can totally not subclass your events, but your bloc will be limited to just the one!!!
-class CounterBloc extends Bloc<CounterIncrementPressed, int> {
+class CounterEvent {} // kinda abstract; intended to be subclassed so we can have multiple events
+class CounterIncrementPressed extends CounterEvent {}
+class CounterDecrementPressed extends CounterEvent {}
+class CounterBloc extends Bloc<CounterEvent, int> {
   CounterBloc(int initialCount) : super(initialCount) {
-    // this 'on' thingy is a "Event Handler"
+
     on<CounterIncrementPressed>((event, emit) {
       emit(state + 1);
+    });
+
+    on<CounterDecrementPressed>((event, emit) {
+      emit(state - 1);
     });
   }
 }
@@ -61,10 +65,20 @@ class _MyHomePageState extends State<MyHomePage> {
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => context.read<CounterBloc>().add(CounterIncrementPressed()),
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
+      floatingActionButton: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          FloatingActionButton(
+            onPressed: () => context.read<CounterBloc>().add(CounterDecrementPressed()),
+            tooltip: 'Decrement',
+            child: const Icon(Icons.remove),
+          ),
+          FloatingActionButton(
+            onPressed: () => context.read<CounterBloc>().add(CounterIncrementPressed()),
+            tooltip: 'Increment',
+            child: const Icon(Icons.add),
+          ),
+        ],
       ),
     );
   }
