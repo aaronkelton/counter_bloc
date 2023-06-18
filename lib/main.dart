@@ -14,7 +14,9 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Counter',
       theme: ThemeData(primarySwatch: Colors.blue),
-      home: const MyHomePage(title: 'Counter with Cubit/BlocBuilder'),
+      home: BlocProvider(
+          create: (_) => CounterCubit(0),
+          child: const MyHomePage(title: 'Counter with Cubit/BlocBuilder')),
     );
   }
 }
@@ -35,8 +37,6 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  final CounterCubit _counter = CounterCubit(0);
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -46,20 +46,17 @@ class _MyHomePageState extends State<MyHomePage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             const Text('Counter:'),
-            BlocBuilder(
-              bloc: _counter,
+            BlocBuilder<CounterCubit, int>(
               builder: (context, state) {
-                return Text(
-                  '$state',
-                  style: Theme.of(context).textTheme.headline4,
-                );
+                return Text('$state',
+                    style: Theme.of(context).textTheme.headline4);
               },
             ),
           ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => _counter.increment(),
+        onPressed: () => context.read<CounterCubit>().increment(),
         tooltip: 'Increment',
         child: const Icon(Icons.add),
       ),
