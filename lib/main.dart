@@ -14,8 +14,12 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Counter',
       theme: ThemeData(primarySwatch: Colors.blue),
-      home: BlocProvider(
-          create: (_) => CounterBloc(0),
+      home: MultiBlocProvider(
+        providers: [
+          BlocProvider(
+            create: (_) => CounterBloc(0),
+          )
+        ],
           child: const MyHomePage(title: 'Counter with Bloc/multi-event')),
     );
   }
