@@ -64,10 +64,15 @@ class _MyHomePageState extends State<MyHomePage> {
             BlocConsumer<CounterBloc, int>(
               buildWhen: (previousState, currentState) => currentState >= 0,
               builder: (context, state) {
-                return Text('$state',
-                    style: Theme.of(context).textTheme.headline4);
+                return Text(
+                  '$state',
+                  style: state % 2 == 0
+                      ? Theme.of(context).textTheme.headline4
+                      : Theme.of(context).textTheme.headline1, // make odd numbers bigger
+                );
               },
-              listenWhen: (previousState, currentState) => currentState % 2 == 0,
+              listenWhen: (previousState, currentState) =>
+                  currentState % 2 == 0,
               listener: (context, state) {
                 print(state);
               },
