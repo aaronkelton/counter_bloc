@@ -14,23 +14,24 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Counter',
       theme: ThemeData(primarySwatch: Colors.blue),
-      home: MultiBlocProvider(
-        providers: [
-          BlocProvider(
-            create: (_) => CounterBloc(0),
-          )
-        ],
-          child: const MyHomePage(title: 'Counter with Bloc/multi-event')),
+      home: MultiBlocProvider(providers: [
+        BlocProvider(
+          create: (_) => CounterBloc(0),
+        )
+      ], child: const MyHomePage(title: 'Counter with Bloc/multi-event')),
     );
   }
 }
 
-class CounterEvent {} // kinda abstract; intended to be subclassed so we can have multiple events
+class CounterEvent {
+} // kinda abstract; intended to be subclassed so we can have multiple events
+
 class CounterIncrementPressed extends CounterEvent {}
+
 class CounterDecrementPressed extends CounterEvent {}
+
 class CounterBloc extends Bloc<CounterEvent, int> {
   CounterBloc(int initialCount) : super(initialCount) {
-
     on<CounterIncrementPressed>((event, emit) {
       emit(state + 1);
     });
@@ -60,11 +61,16 @@ class _MyHomePageState extends State<MyHomePage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             const Text('Counter:'),
-            BlocBuilder<CounterBloc, int>(
-              builder: (context, state) {
-                return Text('$state',
-                    style: Theme.of(context).textTheme.headline4);
+            BlocListener<CounterBloc, int>(
+              listener: (context, state) {
+                print(state);
               },
+              child: BlocBuilder<CounterBloc, int>(
+                builder: (context, state) {
+                  return Text('$state',
+                      style: Theme.of(context).textTheme.headline4);
+                },
+              ),
             ),
           ],
         ),
@@ -73,12 +79,14 @@ class _MyHomePageState extends State<MyHomePage> {
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
           FloatingActionButton(
-            onPressed: () => context.read<CounterBloc>().add(CounterDecrementPressed()),
+            onPressed: () =>
+                context.read<CounterBloc>().add(CounterDecrementPressed()),
             tooltip: 'Decrement',
             child: const Icon(Icons.remove),
           ),
           FloatingActionButton(
-            onPressed: () => context.read<CounterBloc>().add(CounterIncrementPressed()),
+            onPressed: () =>
+                context.read<CounterBloc>().add(CounterIncrementPressed()),
             tooltip: 'Increment',
             child: const Icon(Icons.add),
           ),
