@@ -61,16 +61,16 @@ class _MyHomePageState extends State<MyHomePage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             const Text('Counter:'),
-            BlocListener<CounterBloc, int>(
+            BlocConsumer<CounterBloc, int>(
+              buildWhen: (previousState, currentState) => currentState >= 0,
+              builder: (context, state) {
+                return Text('$state',
+                    style: Theme.of(context).textTheme.headline4);
+              },
+              listenWhen: (previousState, currentState) => currentState % 2 == 0,
               listener: (context, state) {
                 print(state);
               },
-              child: BlocBuilder<CounterBloc, int>(
-                builder: (context, state) {
-                  return Text('$state',
-                      style: Theme.of(context).textTheme.headline4);
-                },
-              ),
             ),
           ],
         ),
