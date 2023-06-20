@@ -18,7 +18,7 @@ class MyApp extends StatelessWidget {
         BlocProvider(
           create: (_) => CounterBloc(0),
         )
-      ], child: const MyHomePage(title: 'Counter with Bloc/multi-event')),
+      ], child: const MyHomePage(title: 'Counter with BlocSelector')),
     );
   }
 }
@@ -61,20 +61,28 @@ class _MyHomePageState extends State<MyHomePage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             const Text('Counter:'),
-            BlocConsumer<CounterBloc, int>(
-              buildWhen: (previousState, currentState) => currentState >= 0,
-              builder: (context, state) {
-                return Text(
-                  '$state',
-                  style: state % 2 == 0
-                      ? Theme.of(context).textTheme.headline4
-                      : Theme.of(context).textTheme.headline1, // make odd numbers bigger
-                );
+            BlocSelector<CounterBloc, int, bool>(
+              selector: (state) {
+                print('Selector: ${state.isEven}');
+                return state.isEven ? true : false;
               },
-              listenWhen: (previousState, currentState) =>
-                  currentState % 2 == 0,
-              listener: (context, state) {
-                print(state);
+              builder: (context, stateIsEven) {
+                return BlocConsumer<CounterBloc, int>(
+                  builder: (context, state) {
+                    print('Builder-stateIsEven: $stateIsEven');
+                    return Text(
+                      '$state',
+                      style: stateIsEven
+                          ? Theme.of(context).textTheme.headline4
+                          : Theme.of(context).textTheme.headline6,
+                    );
+                  },
+                  listener: (context, state) {
+                    // really interesting phenomenon here; stateIsEven inside
+                    // this listener actually returns the previous value!!!
+                    print('Listener-stateIsEven: $stateIsEven');
+                  },
+                );
               },
             ),
           ],
